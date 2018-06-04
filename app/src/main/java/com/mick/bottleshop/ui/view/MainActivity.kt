@@ -10,24 +10,49 @@ import com.mick.bottleshop.databinding.ActivityMainBinding
 import com.mick.bottleshop.global.SPKey
 import com.mick.bottleshop.model.LoginRequest
 import com.mick.bottleshop.model.RegisterRequest
+import com.mick.bottleshop.model.WineListRequest
 import com.mick.bottleshop.net.ApiService
 import com.mick.bottleshop.net.RetrofitClient
+import com.mick.bottleshop.ui.viewmodel.MainViewModel
 import com.mick.bottleshop.util.IPUtil
 import com.mick.bottleshop.util.Utils
+import com.mick.bottleshop.view.viewpager.HorizontalPagerAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class MainActivity : BaseActivity() {
 
     lateinit var mainBinding: ActivityMainBinding
+    lateinit var mViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        mViewModel = MainViewModel()
+
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        login()
+        mainBinding.viewModel = mViewModel
 
+        val horizontalInfiniteCycleViewPager = mainBinding.viewPager
+        horizontalInfiniteCycleViewPager.setAdapter(HorizontalPagerAdapter(this, false))
 
+//        login()
+        getWineList()
+    }
+
+    private fun getWineList() {
+        val request = WineListRequest("35874b1e7a1d4d2189455ff471d1c41")
+        RetrofitClient.getApiService().getWineList(request).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError({ throwable ->
+
+                })
+                .subscribe({ result ->
+                    if (result.isSuccess) {
+                        val wineList = result.value
+
+                    } else {
+                    }
+                })
     }
 
     private fun login() {
